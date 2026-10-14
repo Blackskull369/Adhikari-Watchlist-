@@ -1,0 +1,91 @@
+<div class="header">
+  <h1>My Watchlist</h1>
+  <button mat-flat-button color="warn">
+    <mat-icon>delete</mat-icon> Remove Selected
+  </button>
+</div>
+
+<mat-card appearance="outlined" class="toolbar">
+  <mat-button-toggle-group value="all" aria-label="Filter by status">
+    <mat-button-toggle value="all">All</mat-button-toggle>
+    <mat-button-toggle value="watched">Watched</mat-button-toggle>
+    <mat-button-toggle value="unwatched">Unwatched</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="small-field">
+    <mat-label>Source</mat-label>
+    <mat-select value="all">
+      <mat-option value="all">All sources</mat-option>
+      <mat-option value="api">API</mat-option>
+      <mat-option value="manual">Manual</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <span class="spacer"></span>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="small-field">
+    <mat-label>Sort by</mat-label>
+    <mat-select value="added">
+      <mat-option value="added">Recently added</mat-option>
+      <mat-option value="title">Title (A-Z)</mat-option>
+      <mat-option value="year">Year</mat-option>
+      <mat-option value="imdb">IMDb rating</mat-option>
+      <mat-option value="mine">My rating</mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-card>
+
+<div class="list">
+  @for (m of movies; track m.title) {
+    <mat-card appearance="outlined" class="row">
+      <mat-checkbox></mat-checkbox>
+
+      <div class="poster"><mat-icon>movie</mat-icon></div>
+
+      <div class="details">
+        <div class="title-line">
+          <span class="m-title">{{ m.title }}</span>
+          <mat-chip [class]="m.source === 'api' ? 'chip-api' : 'chip-manual'">
+            {{ m.source === 'api' ? 'API' : 'Manual' }}
+          </mat-chip>
+        </div>
+        <div class="meta">{{ m.year }} · {{ m.genre }}</div>
+      </div>
+
+      <div class="ratings">
+        <div class="rating-block">
+          <span class="r-label">IMDb</span>
+          <span class="imdb">
+            <mat-icon class="imdb-icon">star</mat-icon>
+            {{ m.imdb ?? 'N/A' }}
+          </span>
+        </div>
+        <div class="rating-block">
+          <span class="r-label">My Rating</span>
+          <span class="my-stars">
+            @for (s of stars; track s) {
+              <mat-icon [class.filled]="s <= m.userRating">
+                {{ s <= m.userRating ? 'star' : 'star_border' }}
+              </mat-icon>
+            }
+          </span>
+        </div>
+      </div>
+
+      <mat-slide-toggle [checked]="m.watched">
+        {{ m.watched ? 'Watched' : 'Unwatched' }}
+      </mat-slide-toggle>
+
+      <div class="actions">
+        <span [matTooltip]="m.source === 'api' ? 'API movies cannot be edited' : 'Edit movie'">
+          <button mat-icon-button [disabled]="m.source === 'api'">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </span>
+        <button mat-icon-button color="warn" matTooltip="Remove">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </mat-card>
+  }
+</div>

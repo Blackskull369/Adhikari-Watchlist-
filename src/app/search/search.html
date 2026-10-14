@@ -1,0 +1,31 @@
+<h1>Search Movies</h1>
+
+<mat-form-field appearance="outline" class="search-field">
+  <mat-label>Search movies</mat-label>
+  <input matInput placeholder="e.g. Inception" />
+  <mat-icon matPrefix>search</mat-icon>
+  <mat-hint>Type at least 2 characters</mat-hint>
+</mat-form-field>
+
+<!-- Loading bar: show this while a search is running -->
+<mat-progress-bar mode="indeterminate" class="loader"></mat-progress-bar>
+
+<div class="grid">
+  @for (m of results; track m.title) {
+    <mat-card appearance="outlined" class="movie-card">
+      <div class="poster">
+        <mat-icon>movie</mat-icon>
+      </div>
+      <mat-card-content class="info">
+        <div class="m-title">{{ m.title }}</div>
+        <div class="m-year">{{ m.year }}</div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button color="primary" [disabled]="m.added" class="add-btn">
+          <mat-icon>{{ m.added ? 'check' : 'add' }}</mat-icon>
+          {{ m.added ? 'In Watchlist' : 'Add to Watchlist' }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>
