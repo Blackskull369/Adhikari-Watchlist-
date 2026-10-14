@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+@if (!isLoginPage()) {
+  <app-navbar />
+}
+
+<main [class.page]="!isLoginPage()">
+  <router-outlet />
+</main>

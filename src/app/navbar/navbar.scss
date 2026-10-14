@@ -1,0 +1,28 @@
+.spacer { flex: 1 1 auto; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 8px;
+}
+
+.brand {
+  margin-left: 8px;
+  font-weight: 600;
+  margin-right: 24px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+
+  a mat-icon { margin-right: 4px; }
+}
+
+.active-link { background: rgba(255, 255, 255, 0.2); }
+
+@media (max-width: 800px) {
+  .nav-links a { min-width: 0; padding: 0 8px; font-size: 0; }
+  .nav-links a mat-icon { margin: 0; font-size: 24px; }
+}
