@@ -1,29 +1,5 @@
 @if (!isLoginPage()) {
-  <mat-toolbar color="primary" class="topbar">
-    <mat-icon>movie</mat-icon>
-    <span class="brand">MyWatchlist</span>
-
-    <nav class="nav-links">
-      <a mat-button routerLink="/dashboard" routerLinkActive="active-link">
-        <mat-icon>dashboard</mat-icon> Dashboard
-      </a>
-      <a mat-button routerLink="/search" routerLinkActive="active-link">
-        <mat-icon>search</mat-icon> Search
-      </a>
-      <a mat-button routerLink="/add-movie" routerLinkActive="active-link">
-        <mat-icon>add_circle</mat-icon> Add Movie
-      </a>
-      <a mat-button routerLink="/watchlist" routerLinkActive="active-link">
-        <mat-icon>bookmark</mat-icon> Watchlist
-      </a>
-    </nav>
-
-    <span class="spacer"></span>
-
-    <button mat-button routerLink="/login">
-      <mat-icon>logout</mat-icon> Logout
-    </button>
-  </mat-toolbar>
+  <app-navbar />
 }
 
 <main [class.page]="!isLoginPage()">
