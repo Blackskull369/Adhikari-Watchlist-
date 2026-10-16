@@ -12,7 +12,7 @@ export interface Movie {
   posterUrl: string | null;
   plot: string | null;
   watched: boolean;
-  rating: number | null;       
+  rating: number;       
   imdbRating: number | null;   
   imdbId?: string | null;    
   addedAt: string;             

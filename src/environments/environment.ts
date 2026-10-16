@@ -3,3 +3,8 @@ export const environment = {
   movieApiKey: 'e42948bb',
   movieApiUrl: 'http://www.omdbapi.com/',
 };
+
+
+
+
+

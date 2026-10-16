@@ -35,57 +35,79 @@
   </mat-form-field>
 </mat-card>
 
-<div class="list">
-  @for (m of movies; track m.title) {
-    <mat-card appearance="outlined" class="row">
-      <mat-checkbox></mat-checkbox>
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+} @else if (error()) {
+  <mat-card appearance="outlined" class="state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-flat-button color="primary" (click)="loadMovies()">Try again</button>
+  </mat-card>
+} @else if (movies().length === 0) {
+  <mat-card appearance="outlined" class="state">
+    <mat-icon>movie</mat-icon>
+    <p>No movies in your watchlist yet. Search to add some!</p>
+  </mat-card>
+} @else {
+  <div class="list">
+    @for (m of movies(); track m.id) {
+      <mat-card appearance="outlined" class="row">
+        <mat-checkbox></mat-checkbox>
 
-      <div class="poster"><mat-icon>movie</mat-icon></div>
+        <div class="poster"><mat-icon>movie</mat-icon></div>
 
-      <div class="details">
-        <div class="title-line">
-          <span class="m-title">{{ m.title }}</span>
-          <mat-chip [class]="m.source === 'api' ? 'chip-api' : 'chip-manual'">
-            {{ m.source === 'api' ? 'API' : 'Manual' }}
-          </mat-chip>
+        <div class="details">
+          <div class="title-line">
+            <span class="m-title">{{ m.title }}</span>
+            <mat-chip [class]="m.source === 'api' ? 'chip-api' : 'chip-manual'">
+              {{ m.source === 'api' ? 'API' : 'Manual' }}
+            </mat-chip>
+          </div>
+          <div class="meta">{{ m.year }} · {{ m.genre }}</div>
         </div>
-        <div class="meta">{{ m.year }} · {{ m.genre }}</div>
-      </div>
 
-      <div class="ratings">
-        <div class="rating-block">
-          <span class="r-label">IMDb</span>
-          <span class="imdb">
-            <mat-icon class="imdb-icon">star</mat-icon>
-            {{ m.imdb ?? 'N/A' }}
-          </span>
-        </div>
-        <div class="rating-block">
-          <span class="r-label">My Rating</span>
-          <span class="my-stars">
-            @for (s of stars; track s) {
-              <mat-icon [class.filled]="s <= m.userRating">
-                {{ s <= m.userRating ? 'star' : 'star_border' }}
-              </mat-icon>
+        <div class="ratings">
+          <div class="rating-block">
+            <span class="r-label">IMDb</span>
+            <span class="imdb">
+              <mat-icon class="imdb-icon">star</mat-icon>
+              {{ m.imdbRating ?? 'N/A' }}
+            </span>
+          </div>
+          <div class="rating-block">
+            <span class="r-label">My Rating</span>
+            <span class="my-stars">
+              @if(m.watched){
+              @for (s of stars; track s) {
+                <mat-icon
+                  [class.filled]="s <= (m.rating ?? 0)"
+                  (click)="setRating(m, s)">
+                  {{ s <= (m.rating ?? 0) ? 'star' : 'star_border' }}
+                </mat-icon>
+              }
             }
-          </span>
+            @else {
+              <p><b>N/A</b></p>
+            }
+            </span>
+          </div>
         </div>
-      </div>
 
-      <mat-slide-toggle [checked]="m.watched">
-        {{ m.watched ? 'Watched' : 'Unwatched' }}
-      </mat-slide-toggle>
+        <mat-slide-toggle [checked]="m.watched" (change)="toggleWatched(m)">
+          {{ m.watched ? 'Watched' : 'Unwatched' }}
+        </mat-slide-toggle>
 
-      <div class="actions">
-        <span [matTooltip]="m.source === 'api' ? 'API movies cannot be edited' : 'Edit movie'">
-          <button mat-icon-button [disabled]="m.source === 'api'">
-            <mat-icon>edit</mat-icon>
+        <div class="actions">
+          <span [matTooltip]="m.source === 'api' ? 'API movies cannot be edited' : 'Edit movie'">
+            <button mat-icon-button [disabled]="m.source === 'api'">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </span>
+          <button mat-icon-button color="warn" matTooltip="Remove" (click)="remove(m)">
+            <mat-icon>delete</mat-icon>
           </button>
-        </span>
-        <button mat-icon-button color="warn" matTooltip="Remove">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </mat-card>
-  }
-</div>
+        </div>
+      </mat-card>
+    }
+  </div>
+}
