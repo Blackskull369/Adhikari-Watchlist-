@@ -100,7 +100,7 @@
         <div class="actions">
           <span [matTooltip]="m.source === 'api' ? 'API movies cannot be edited' : 'Edit movie'">
             <button mat-icon-button [disabled]="m.source === 'api'">
-              <mat-icon>edit</mat-icon>
+              <mat-icon (click)="edit(m)">edit</mat-icon>
             </button>
           </span>
           <button mat-icon-button color="warn" matTooltip="Remove" (click)="remove(m)">

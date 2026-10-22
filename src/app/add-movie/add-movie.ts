@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +14,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MovieStoreService } from '../services/movie-store.service';
 import { NotificationService } from '../services/notification.service';
 import { Movie } from '../models/movie.model';
-
 
 function ratingRequiredWhenWatched(group: AbstractControl): ValidationErrors | null {
   const watched = group.get('watched')?.value;
@@ -31,11 +30,14 @@ function ratingRequiredWhenWatched(group: AbstractControl): ValidationErrors | n
   templateUrl: './add-movie.html',
   styleUrl: './add-movie.scss',
 })
-export class AddMovie {
+export class AddMovie implements OnInit {
   private fb = inject(FormBuilder);
   private store = inject(MovieStoreService);
   private notify = inject(NotificationService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  editId = this.route.snapshot.paramMap.get('id');
 
   genres = ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi', 'Thriller', 'Documentary', 'Other'];
   stars = [1, 2, 3, 4, 5];
@@ -43,6 +45,7 @@ export class AddMovie {
 
   saving = signal(false);
   submitted = signal(false);
+  isApiMovie = signal(false);                                   // NEW
 
   form = this.fb.nonNullable.group(
     {
@@ -69,6 +72,44 @@ export class AddMovie {
     { validators: ratingRequiredWhenWatched },
   );
 
+  ngOnInit() {
+    if (!this.editId) {
+      return;
+    }
+
+    this.store.getById(this.editId).subscribe({
+      next: movie => {
+        this.form.patchValue({
+          title: movie.title,
+          year: movie.year,
+          director: movie.director,
+          genre: movie.genre,
+          runtime: movie.runtime,
+          posterUrl: movie.posterUrl ?? '',
+          plot: movie.plot ?? '',
+          watched: movie.watched,
+          rating: movie.rating,
+        });
+
+        // NEW: movies from the public API are read-only, except watched and rating
+        if (movie.source === 'api') {
+          this.isApiMovie.set(true);
+          this.form.controls.title.disable();
+          this.form.controls.year.disable();
+          this.form.controls.director.disable();
+          this.form.controls.genre.disable();
+          this.form.controls.runtime.disable();
+          this.form.controls.posterUrl.disable();
+          this.form.controls.plot.disable();
+        }
+      },
+      error: () => {
+        this.notify.error('Could not load this movie');
+        this.router.navigate(['/watchlist']);
+      },
+    });
+  }
+
   setRating(value: number) {
     this.form.controls.rating.setValue(value);
   }
@@ -83,8 +124,7 @@ export class AddMovie {
 
     const v = this.form.getRawValue();
 
-    const movie: Movie = {
-      source: 'manual',
+    const values = {
       title: v.title.trim(),
       year: v.year!,
       director: v.director.trim(),
@@ -94,23 +134,46 @@ export class AddMovie {
       plot: v.plot.trim() || null,
       watched: v.watched,
       rating: v.rating,
-      imdbRating: null,
-      imdbId: null,
-      addedAt: new Date().toISOString(),
     };
 
     this.saving.set(true);
 
-    this.store.add(movie).subscribe({
-      next: () => {
-        this.notify.success(`"${movie.title}" added to your watchlist`);
-        this.router.navigate(['/watchlist']);
-      },
-      error: () => {
-        this.saving.set(false);
-        this.notify.error('Could not save the movie. Is the API running?');
-      },
-    });
+    if (this.editId) {
+      // NEW: an API movie may only change watched and rating
+      const changes = this.isApiMovie()
+        ? { watched: v.watched, rating: v.rating }
+        : values;
+
+      this.store.update(this.editId, changes).subscribe({
+        next: () => {
+          this.notify.success('Movie updated');
+          this.router.navigate(['/watchlist']);
+        },
+        error: () => {
+          this.saving.set(false);
+          this.notify.error('Could not update the movie');
+        },
+      });
+    } else {
+      const movie: Movie = {
+        ...values,
+        source: 'manual',
+        imdbRating: null,
+        imdbId: null,
+        addedAt: new Date().toISOString(),
+      };
+
+      this.store.add(movie).subscribe({
+        next: () => {
+          this.notify.success(`"${movie.title}" added to your watchlist`);
+          this.router.navigate(['/watchlist']);
+        },
+        error: () => {
+          this.saving.set(false);
+          this.notify.error('Could not save the movie. Is the API running?');
+        },
+      });
+    }
   }
 
   cancel() {

@@ -1,9 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';                 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -14,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MovieStoreService } from '../services/movie-store.service';
 import { NotificationService } from '../services/notification.service';
 import { Movie } from '../models/movie.model';
+import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';     
 
 @Component({
   selector: 'app-watchlist',
@@ -28,16 +32,17 @@ import { Movie } from '../models/movie.model';
 export class Watchlist implements OnInit {
   private store = inject(MovieStoreService);
   private notify = inject(NotificationService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);                                  
 
   stars = [1, 2, 3, 4, 5];
 
   movies = signal<Movie[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
-  selectedids:number[] = [];
+  selectedIds = signal<(number | string)[]>([]);
 
   ngOnInit() {
- 
     this.loadMovies();
   }
 
@@ -56,6 +61,10 @@ export class Watchlist implements OnInit {
         this.notify.error('Failed to load your watchlist');
       },
     });
+  }
+
+  edit(movie: Movie) {
+    this.router.navigate(['/watchlist/edit', movie.id]);
   }
 
   toggleWatched(movie: Movie) {
@@ -78,47 +87,76 @@ export class Watchlist implements OnInit {
     });
   }
 
+  // NEW: opens the dialog and gives back an Observable of the answer
+  private askToConfirm(title: string, message: string) {
+    return this.dialog
+      .open(ConfirmDialog, {
+        width: '400px',
+        data: { title, message, confirmText: 'Delete' },
+      })
+      .afterClosed();
+  }
+
+  
   remove(movie: Movie) {
-    this.store.delete(movie.id!).subscribe({
-      next: () => {
-        this.movies.update(list => list.filter(m => m.id !== movie.id));
-        this.notify.success('Movie removed');
-      },
-      error: () => this.notify.error('Could not remove the movie'),
+    this.askToConfirm('Remove movie?', `Remove "${movie.title}" from your watchlist?`)
+      .subscribe(confirmed => {
+        if (!confirmed) {
+          return;
+        }
+
+        this.store.delete(movie.id!).subscribe({
+          next: () => {
+            this.movies.update(list => list.filter(m => m.id !== movie.id));
+            this.selectedIds.update(list => list.filter(x => x !== movie.id));
+            this.notify.success('Movie removed');
+          },
+          error: () => this.notify.error('Could not remove the movie'),
+        });
+      });
+  }
+
+  onCheckBoxChange(id: number | string | undefined, checked: boolean) {
+    if (id === undefined) {
+      return;
+    }
+
+    if (checked) {
+      this.selectedIds.update(list => [...list, id]);
+    } else {
+      this.selectedIds.update(list => list.filter(x => x !== id));
+    }
+  }
+
+  
+  removeSelected() {
+    const ids = this.selectedIds();
+
+    if (ids.length === 0) {
+      this.notify.error('Select at least one movie first');
+      return;
+    }
+
+    this.askToConfirm(
+      'Remove selected movies?',
+      `Remove ${ids.length} selected movie(s) from your watchlist?`,
+    ).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+
+      forkJoin(ids.map(id => this.store.delete(id))).subscribe({
+        next: () => {
+          this.movies.update(list => list.filter(m => !ids.includes(m.id!)));
+          this.selectedIds.set([]);
+          this.notify.success(`${ids.length} movie(s) removed`);
+        },
+        error: () => this.notify.error('Could not remove the selected movies'),
+      });
     });
   }
 
   private replaceMovie(updated: Movie) {
     this.movies.update(list => list.map(m => (m.id === updated.id ? updated : m)));
   }
-  
-  
-  onCheckBoxChange(id:any, isChecked:boolean){
-    if (isChecked) {
-       this.selectedids.push(id)
-    }
-    else {
-      this.selectedids = this.selectedids.filter(i => i !== id); 
-    }
-  }
-
-  removeSelected() {
-    if (this.selectedids.length === 0) {
-      this.notify.error('No movies selected');
-      return; 
-    }
-
-    this.selectedids.forEach(id => {
-      this.store.delete(id).subscribe({
-        next: () => {
-          this.movies.update(list => list.filter(m => m.id !== id));
-        },
-        error: () => this.notify.error('Could not remove one of the movies')
-      });
-    });
-
-    this.selectedids = [];
-    this.notify.success('Selected movies removed');
-  }
-
 }

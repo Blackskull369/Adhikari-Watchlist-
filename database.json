@@ -11,7 +11,7 @@
       "posterUrl": null,
       "plot": "A Bhutanese drama.",
       "watched": true,
-      "rating": 4,
+      "rating": 3,
       "imdbRating": null,
       "imdbId": null,
       "addedAt": "2026-10-12T09:30:00.000Z"
@@ -26,8 +26,8 @@
       "runtime": 169,
       "posterUrl": null,
       "plot": "A team travels through a wormhole to save humanity.",
-      "watched": false,
-      "rating": 1,
+      "watched": true,
+      "rating": 5,
       "imdbRating": 8.7,
       "imdbId": "tt0816692",
       "addedAt": "2026-10-13T18:00:00.000Z"
