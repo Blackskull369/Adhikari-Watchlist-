@@ -15,7 +15,7 @@ import { MovieStoreService } from '../services/movie-store.service';
 import { NotificationService } from '../services/notification.service';
 import { Movie } from '../models/movie.model';
 
-// Cross-field validator: if "watched" is on, a rating is required.
+
 function ratingRequiredWhenWatched(group: AbstractControl): ValidationErrors | null {
   const watched = group.get('watched')?.value;
   const rating = group.get('rating')?.value;

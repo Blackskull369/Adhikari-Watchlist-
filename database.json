@@ -2,22 +2,6 @@
   "watchlist": [
     {
       "id": 1,
-      "source": "api",
-      "title": "Inception",
-      "year": 2010,
-      "director": "Christopher Nolan",
-      "genre": "Sci-Fi",
-      "runtime": 148,
-      "posterUrl": null,
-      "plot": "A thief who steals secrets through dreams is given a chance to erase his past.",
-      "watched": true,
-      "rating": 5,
-      "imdbRating": 8.8,
-      "imdbId": "tt1375666",
-      "addedAt": "2026-10-10T10:00:00.000Z"
-    },
-    {
-      "id": 2,
       "source": "manual",
       "title": "Pawo",
       "year": 2016,
@@ -27,13 +11,13 @@
       "posterUrl": null,
       "plot": "A Bhutanese drama.",
       "watched": true,
-      "rating": 5,
+      "rating": 4,
       "imdbRating": null,
       "imdbId": null,
       "addedAt": "2026-10-12T09:30:00.000Z"
     },
     {
-      "id": 3,
+      "id": 2,
       "source": "api",
       "title": "Interstellar",
       "year": 2014,
@@ -42,27 +26,11 @@
       "runtime": 169,
       "posterUrl": null,
       "plot": "A team travels through a wormhole to save humanity.",
-      "watched": true,
-      "rating": 4,
+      "watched": false,
+      "rating": 1,
       "imdbRating": 8.7,
       "imdbId": "tt0816692",
       "addedAt": "2026-10-13T18:00:00.000Z"
-    },
-    {
-      "source": "manual",
-      "title": "ws",
-      "year": 2002,
-      "director": "eddd",
-      "genre": "Comedy",
-      "runtime": 123,
-      "posterUrl": null,
-      "plot": null,
-      "watched": true,
-      "rating": 4,
-      "imdbRating": null,
-      "imdbId": null,
-      "addedAt": "2026-10-22T03:33:09.829Z",
-      "id": 6
     }
   ],
   "users": [

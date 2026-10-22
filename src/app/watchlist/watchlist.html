@@ -1,6 +1,6 @@
 <div class="header">
   <h1>My Watchlist</h1>
-  <button mat-flat-button color="warn">
+  <button (click) = removeSelected() mat-flat-button color="warn">
     <mat-icon>delete</mat-icon> Remove Selected
   </button>
 </div>
@@ -52,7 +52,7 @@
   <div class="list">
     @for (m of movies(); track m.id) {
       <mat-card appearance="outlined" class="row">
-        <mat-checkbox></mat-checkbox>
+       <mat-checkbox (change)="onCheckBoxChange(m.id, $event.checked)"></mat-checkbox>
 
         <div class="poster"><mat-icon>movie</mat-icon></div>
 

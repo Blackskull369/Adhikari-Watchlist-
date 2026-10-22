@@ -34,8 +34,10 @@ export class Watchlist implements OnInit {
   movies = signal<Movie[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  selectedids:number[] = [];
 
   ngOnInit() {
+ 
     this.loadMovies();
   }
 
@@ -89,4 +91,34 @@ export class Watchlist implements OnInit {
   private replaceMovie(updated: Movie) {
     this.movies.update(list => list.map(m => (m.id === updated.id ? updated : m)));
   }
+  
+  
+  onCheckBoxChange(id:any, isChecked:boolean){
+    if (isChecked) {
+       this.selectedids.push(id)
+    }
+    else {
+      this.selectedids = this.selectedids.filter(i => i !== id); 
+    }
+  }
+
+  removeSelected() {
+    if (this.selectedids.length === 0) {
+      this.notify.error('No movies selected');
+      return; 
+    }
+
+    this.selectedids.forEach(id => {
+      this.store.delete(id).subscribe({
+        next: () => {
+          this.movies.update(list => list.filter(m => m.id !== id));
+        },
+        error: () => this.notify.error('Could not remove one of the movies')
+      });
+    });
+
+    this.selectedids = [];
+    this.notify.success('Selected movies removed');
+  }
+
 }
