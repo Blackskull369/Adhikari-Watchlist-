@@ -10,8 +10,8 @@
       "runtime": 148,
       "posterUrl": null,
       "plot": "A thief who steals secrets through dreams is given a chance to erase his past.",
-      "watched": false,
-      "rating": 2,
+      "watched": true,
+      "rating": 5,
       "imdbRating": 8.8,
       "imdbId": "tt1375666",
       "addedAt": "2026-10-10T10:00:00.000Z"
@@ -47,6 +47,22 @@
       "imdbRating": 8.7,
       "imdbId": "tt0816692",
       "addedAt": "2026-10-13T18:00:00.000Z"
+    },
+    {
+      "source": "manual",
+      "title": "ws",
+      "year": 2002,
+      "director": "eddd",
+      "genre": "Comedy",
+      "runtime": 123,
+      "posterUrl": null,
+      "plot": null,
+      "watched": true,
+      "rating": 4,
+      "imdbRating": null,
+      "imdbId": null,
+      "addedAt": "2026-10-22T03:33:09.829Z",
+      "id": 6
     }
   ],
   "users": [
