@@ -2,30 +2,45 @@
 
 <mat-form-field appearance="outline" class="search-field">
   <mat-label>Search movies</mat-label>
-  <input matInput placeholder="e.g. Inception" />
+  <input matInput appAutofocus [formControl]="searchControl" placeholder="e.g. Inception" />
   <mat-icon matPrefix>search</mat-icon>
-  <mat-hint>Type at least 2 characters</mat-hint>
+  @if (searchControl.value) {
+    <button matSuffix mat-icon-button type="button" aria-label="Clear" (click)="clear()">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+  <mat-hint [class.hint-error]="searchControl.hasError('minChars')">
+    Type at least 2 characters
+  </mat-hint>
 </mat-form-field>
 
-<!-- Loading bar: show this while a search is running -->
-<mat-progress-bar mode="indeterminate" class="loader"></mat-progress-bar>
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" class="loader" />
+}
 
-<div class="grid">
-  @for (m of results; track m.title) {
-    <mat-card appearance="outlined" class="movie-card">
-      <div class="poster">
-        <mat-icon>movie</mat-icon>
-      </div>
-      <mat-card-content class="info">
-        <div class="m-title">{{ m.title }}</div>
-        <div class="m-year">{{ m.year }}</div>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-flat-button color="primary" [disabled]="m.added" class="add-btn">
-          <mat-icon>{{ m.added ? 'check' : 'add' }}</mat-icon>
-          {{ m.added ? 'In Watchlist' : 'Add to Watchlist' }}
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  }
-</div>
+@if (error(); as message) {
+  <mat-card appearance="outlined" class="state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ message }}</p>
+    <button mat-flat-button color="primary" (click)="retry()">Try again</button>
+  </mat-card>
+} @else if (results().length > 0) {
+  <div class="grid">
+    @for (m of results(); track m.imdbId) {
+      <app-movie-card
+        [movie]="m"
+        [inWatchlist]="isSaved(m.imdbId)"
+        [busy]="isAdding(m.imdbId)"
+        (add)="addToWatchlist($event)" />
+    }
+  </div>
+} @else if (!loading()) {
+  <mat-card appearance="outlined" class="state">
+    <mat-icon>search</mat-icon>
+    @if (searched()) {
+      <p>No movies found for "{{ lastQuery() }}". Try another title.</p>
+    } @else {
+      <p>Search for a movie to get started.</p>
+    }
+  </mat-card>
+}

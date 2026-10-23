@@ -54,7 +54,13 @@
       <mat-card appearance="outlined" class="row">
        <mat-checkbox (change)="onCheckBoxChange(m.id, $event.checked)"></mat-checkbox>
 
-        <div class="poster"><mat-icon>movie</mat-icon></div>
+        <div class="poster">
+         @if (m.posterUrl) {
+            <img [src]="m.posterUrl" [alt]="m.title" class="poster-img" />
+        } @else {
+            <mat-icon>movie</mat-icon>
+        }
+</div>
 
         <div class="details">
           <div class="title-line">

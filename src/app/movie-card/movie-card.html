@@ -1,1 +1,26 @@
-<p>movie-card works!</p>
+<mat-card appearance="outlined" class="movie-card">
+  <div class="poster">
+    @if (movie().posterUrl; as url) {
+      <img [src]="url" [alt]="movie().title" />
+    } @else {
+      <mat-icon>movie</mat-icon>
+    }
+  </div>
+
+  <mat-card-content class="info">
+    <div class="m-title">{{ movie().title }}</div>
+    <div class="m-year">{{ movie().year }}</div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button
+      mat-flat-button
+      color="primary"
+      class="add-btn"
+      [disabled]="inWatchlist() || busy()"
+      (click)="add.emit(movie())">
+      <mat-icon>{{ inWatchlist() ? 'check' : 'add' }}</mat-icon>
+      {{ inWatchlist() ? 'In Watchlist' : (busy() ? 'Adding...' : 'Add to Watchlist') }}
+    </button>
+  </mat-card-actions>
+</mat-card>
