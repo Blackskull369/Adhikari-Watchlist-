@@ -91,7 +91,7 @@ export class AddMovie implements OnInit {
           rating: movie.rating,
         });
 
-        // NEW: movies from the public API are read-only, except watched and rating
+        
         if (movie.source === 'api') {
           this.isApiMovie.set(true);
           this.form.controls.title.disable();
@@ -139,7 +139,7 @@ export class AddMovie implements OnInit {
     this.saving.set(true);
 
     if (this.editId) {
-      // NEW: an API movie may only change watched and rating
+      
       const changes = this.isApiMovie()
         ? { watched: v.watched, rating: v.rating }
         : values;

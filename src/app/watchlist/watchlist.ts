@@ -87,11 +87,11 @@ export class Watchlist implements OnInit {
     });
   }
 
-  // NEW: opens the dialog and gives back an Observable of the answer
+  
   private askToConfirm(title: string, message: string) {
     return this.dialog
       .open(ConfirmDialog, {
-        width: '400px',
+        width: '1000px',
         data: { title, message, confirmText: 'Delete' },
       })
       .afterClosed();
