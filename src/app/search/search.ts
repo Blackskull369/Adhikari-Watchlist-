@@ -149,6 +149,9 @@ export class Search implements OnInit {
   clear() {
     this.searchControl.setValue('');
   }
+  openDetail(result: SearchResult) {
+  this.router.navigate(['/search', result.imdbId]);
+}
 
   
   private loadSavedIds() {

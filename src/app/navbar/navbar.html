@@ -13,13 +13,18 @@
       <mat-icon>add_circle</mat-icon> Add Movie
     </a>
     <a mat-button routerLink="/watchlist" routerLinkActive="active-link">
-      <mat-icon>bookmark</mat-icon> Watchlist
+      <mat-icon
+        [matBadge]="count()"
+        [matBadgeHidden]="count() === 0"
+        matBadgeSize="small"
+        matBadgeColor="accent">bookmark</mat-icon>
+      Watchlist
     </a>
   </nav>
 
   <span class="spacer"></span>
 
-  <button mat-button routerLink="/login">
+  <button mat-button (click)="logout()">
     <mat-icon>logout</mat-icon> Logout
   </button>
 </mat-toolbar>

@@ -1,0 +1,47 @@
+<button mat-button class="back" (click)="back()">
+  <mat-icon>arrow_back</mat-icon> Back
+</button>
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+} @else if (error(); as message) {
+  <mat-card appearance="outlined" class="state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ message }}</p>
+  </mat-card>
+} @else if (movie(); as m) {
+  <mat-card appearance="outlined" class="detail">
+    <div class="poster">
+      @if (m.posterUrl; as url) {
+        <img [src]="url" [alt]="m.title" />
+      } @else {
+        <mat-icon>movie</mat-icon>
+      }
+    </div>
+
+    <div class="body">
+      <h1>{{ m.title }}</h1>
+      <div class="meta">{{ m.year }} · {{ m.genre }} · {{ m.runtime | runtimeFormat }}</div>
+
+      <div class="imdb">
+        <mat-icon>star</mat-icon> {{ m.imdbRating ?? 'N/A' }} <span>IMDb</span>
+      </div>
+
+      <p class="label">Director</p>
+      <p>{{ m.director }}</p>
+
+      <p class="label">Plot</p>
+      <p>{{ m.plot ?? 'No plot available.' }}</p>
+
+      <button
+        mat-flat-button
+        color="primary"
+        class="add"
+        [disabled]="saved() || adding()"
+        (click)="add()">
+        <mat-icon>{{ saved() ? 'check' : 'add' }}</mat-icon>
+        {{ saved() ? 'In Watchlist' : (adding() ? 'Adding...' : 'Add to Watchlist') }}
+      </button>
+    </div>
+  </mat-card>
+}

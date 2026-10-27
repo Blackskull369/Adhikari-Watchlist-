@@ -1,5 +1,10 @@
 <mat-card appearance="outlined" class="movie-card">
-  <div class="poster">
+  <div
+    class="poster clickable"
+    role="button"
+    tabindex="0"
+    (click)="open.emit(movie())"
+    (keydown.enter)="open.emit(movie())">
     @if (movie().posterUrl; as url) {
       <img [src]="url" [alt]="movie().title" />
     } @else {
@@ -8,7 +13,7 @@
   </div>
 
   <mat-card-content class="info">
-    <div class="m-title">{{ movie().title }}</div>
+    <div class="m-title clickable" (click)="open.emit(movie())">{{ movie().title }}</div>
     <div class="m-year">{{ movie().year }}</div>
   </mat-card-content>
 

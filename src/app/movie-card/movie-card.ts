@@ -12,11 +12,12 @@ import { SearchResult } from '../models/movie.model';
   styleUrl: './movie-card.scss',
 })
 export class MovieCard {
-
+  
   movie = input.required<SearchResult>();
   inWatchlist = input(false);
   busy = input(false);
 
   
   add = output<SearchResult>();
+  open = output<SearchResult>();
 }

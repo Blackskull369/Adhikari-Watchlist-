@@ -1,12 +1,19 @@
 <div class="header">
   <h1>My Watchlist</h1>
-  <button (click) = removeSelected() mat-flat-button color="warn">
-    <mat-icon>delete</mat-icon> Remove Selected
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="selectedVisibleIds().length === 0"
+    (click)="removeSelected()">
+    <mat-icon>delete</mat-icon> Remove Selected ({{ selectedVisibleIds().length }})
   </button>
 </div>
 
 <mat-card appearance="outlined" class="toolbar">
-  <mat-button-toggle-group value="all" aria-label="Filter by status">
+  <mat-button-toggle-group
+    [value]="statusFilter()"
+    (change)="statusFilter.set($event.value)"
+    aria-label="Filter by status">
     <mat-button-toggle value="all">All</mat-button-toggle>
     <mat-button-toggle value="watched">Watched</mat-button-toggle>
     <mat-button-toggle value="unwatched">Unwatched</mat-button-toggle>
@@ -14,10 +21,31 @@
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="small-field">
     <mat-label>Source</mat-label>
-    <mat-select value="all">
+    <mat-select [value]="sourceFilter()" (selectionChange)="sourceFilter.set($event.value)">
       <mat-option value="all">All sources</mat-option>
       <mat-option value="api">API</mat-option>
       <mat-option value="manual">Manual</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="small-field">
+    <mat-label>Rating</mat-label>
+    <mat-select [value]="ratingFilter()" (selectionChange)="ratingFilter.set($event.value)">
+      <mat-option value="all">All ratings</mat-option>
+      <mat-option value="unrated">Unrated</mat-option>
+      <mat-option value="5">5 stars</mat-option>
+      <mat-option value="4">4 stars &amp; up</mat-option>
+      <mat-option value="3">3 stars &amp; up</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="small-field">
+    <mat-label>Year</mat-label>
+    <mat-select [value]="yearFilter()" (selectionChange)="yearFilter.set($event.value)">
+      <mat-option value="all">All years</mat-option>
+      @for (y of years(); track y) {
+        <mat-option [value]="'' + y">{{ y }}</mat-option>
+      }
     </mat-select>
   </mat-form-field>
 
@@ -25,10 +53,10 @@
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="small-field">
     <mat-label>Sort by</mat-label>
-    <mat-select value="added">
+    <mat-select [value]="sortBy()" (selectionChange)="sortBy.set($event.value)">
       <mat-option value="added">Recently added</mat-option>
       <mat-option value="title">Title (A-Z)</mat-option>
-      <mat-option value="year">Year</mat-option>
+      <mat-option value="year">Year (newest)</mat-option>
       <mat-option value="imdb">IMDb rating</mat-option>
       <mat-option value="mine">My rating</mat-option>
     </mat-select>
@@ -48,19 +76,29 @@
     <mat-icon>movie</mat-icon>
     <p>No movies in your watchlist yet. Search to add some!</p>
   </mat-card>
+} @else if (visibleMovies().length === 0) {
+  <mat-card appearance="outlined" class="state">
+    <mat-icon>filter_list_off</mat-icon>
+    <p>No movies match your filters.</p>
+    <button mat-stroked-button (click)="clearFilters()">Clear filters</button>
+  </mat-card>
 } @else {
+  <p class="summary">Showing {{ visibleMovies().length }} of {{ movies().length }} movies</p>
+
   <div class="list">
-    @for (m of movies(); track m.id) {
+    @for (m of visibleMovies(); track m.id) {
       <mat-card appearance="outlined" class="row">
-       <mat-checkbox (change)="onCheckBoxChange(m.id, $event.checked)"></mat-checkbox>
+        <mat-checkbox
+          [checked]="isSelected(m.id)"
+          (change)="onCheckBoxChange(m.id, $event.checked)"></mat-checkbox>
 
         <div class="poster">
-         @if (m.posterUrl) {
-            <img [src]="m.posterUrl" [alt]="m.title" class="poster-img" />
-        } @else {
+          @if (m.posterUrl; as url) {
+            <img [src]="url" [alt]="m.title" />
+          } @else {
             <mat-icon>movie</mat-icon>
-        }
-</div>
+          }
+        </div>
 
         <div class="details">
           <div class="title-line">
@@ -69,7 +107,7 @@
               {{ m.source === 'api' ? 'API' : 'Manual' }}
             </mat-chip>
           </div>
-          <div class="meta">{{ m.year }} · {{ m.genre }}</div>
+          <div class="meta">{{ m.year }} · {{ m.genre }} · {{ m.runtime | runtimeFormat }}</div>
         </div>
 
         <div class="ratings">
@@ -83,19 +121,17 @@
           <div class="rating-block">
             <span class="r-label">My Rating</span>
             <span class="my-stars">
-              @if(m.watched){
-              @for (s of stars; track s) {
-                <mat-icon
-                  [class.filled]="s <= (m.rating ?? 0)"
-                  (click)="setRating(m, s)">
-                  {{ s <= (m.rating ?? 0) ? 'star' : 'star_border' }}
-                </mat-icon>
+              @if (m.watched) {
+                @for (s of stars; track s) {
+                  <mat-icon
+                    [class.filled]="s <= (m.rating ?? 0)"
+                    (click)="setRating(m, s)">
+                    {{ s <= (m.rating ?? 0) ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
+              } @else {
+                <p><b>N/A</b></p>
               }
-            }
-            @else {
-              
-              {{"N/A"}}
-            }
             </span>
           </div>
         </div>
@@ -106,8 +142,8 @@
 
         <div class="actions">
           <span [matTooltip]="m.source === 'api' ? 'API movies cannot be edited' : 'Edit movie'">
-            <button mat-icon-button [disabled]="m.source === 'api'">
-              <mat-icon (click)="edit(m)">edit</mat-icon>
+            <button mat-icon-button [disabled]="m.source === 'api'" (click)="edit(m)">
+              <mat-icon>edit</mat-icon>
             </button>
           </span>
           <button mat-icon-button color="warn" matTooltip="Remove" (click)="remove(m)">
