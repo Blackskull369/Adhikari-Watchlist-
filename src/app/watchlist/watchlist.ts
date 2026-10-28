@@ -43,20 +43,20 @@ export class Watchlist implements OnInit {
   error = signal<string | null>(null);
   selectedIds = signal<(number | string)[]>([]);
 
-  // Filter and sort choices
+  
   statusFilter = signal<'all' | 'watched' | 'unwatched'>('all');
   sourceFilter = signal<'all' | 'api' | 'manual'>('all');
   ratingFilter = signal<string>('all');
   yearFilter = signal<string>('all');
   sortBy = signal<string>('added');
 
-  // Years that exist in the list, newest first (for the year dropdown)
+  
   years = computed(() => {
     const unique = new Set(this.movies().map(m => m.year));
     return [...unique].sort((a, b) => b - a);
   });
 
-  // The list the screen shows: all movies, filtered, then sorted
+  
   visibleMovies = computed(() => {
     const status = this.statusFilter();
     const source = this.sourceFilter();
@@ -96,7 +96,7 @@ export class Watchlist implements OnInit {
       this.yearFilter() !== 'all',
   );
 
-  // Selected movies that are currently on screen
+  
   selectedVisibleIds = computed(() => {
     const visible = new Set(this.visibleMovies().map(m => m.id));
     return this.selectedIds().filter(id => visible.has(id));

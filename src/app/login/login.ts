@@ -33,7 +33,7 @@ export class Login implements OnInit {
   });
 
   ngOnInit() {
-    // Already logged in? Skip the login page.
+    
     if (this.auth.isLoggedIn()) {
       this.router.navigate(['/dashboard']);
     }

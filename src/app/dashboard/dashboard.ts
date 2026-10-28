@@ -38,7 +38,7 @@ export class Dashboard implements OnInit {
   error = signal<string | null>(null);
   chartMode = signal<'genre' | 'status'>('genre');
 
-  // The <canvas> in the HTML (it only exists once data is loaded)
+  
   canvas = viewChild<ElementRef<HTMLCanvasElement>>('chartCanvas');
   private chart: { destroy(): void } | null = null;
 
